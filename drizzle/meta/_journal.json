@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1768344503752,
+      "tag": "0000_happy_baron_strucker",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768344503753,
+      "tag": "0001_add_user_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768344503754,
+      "tag": "0002_profile_multi_select",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768347219999,
+      "tag": "0003_small_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1768349222889,
+      "tag": "0004_peaceful_sprite",
+      "breakpoints": true
+    }
+  ]
+}
