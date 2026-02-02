@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const isAuthed = status === "authenticated";
 
   return (
@@ -13,62 +13,12 @@ export default function Home() {
         <header className="hero">
           <div className="heroTop">
             <span className="eyebrow">AI Garden Assistant</span>
-            <div className="heroAuth">
-              {status === "loading" && (
-                <span className="authHint">Checking session...</span>
-              )}
-              {isAuthed ? (
-                <div className="authControls">
-                  <span className="authEmail">{session.user?.email}</span>
-                  <button
-                    type="button"
-                    className="authGhostButton"
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <div className="authControls">
-                  <Link className="authLink" href="/login">
-                    Log in
-                  </Link>
-                  <Link className="authButton" href="/signup">
-                    Sign up
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
           <h1>Grow a calmer, greener garden.</h1>
           <p>
             A free, hobby-grade chat companion for watering, soil, pests, and
             seasonal care.
           </p>
-          <div className="landingActions">
-            {isAuthed ? (
-              <>
-                <Link className="authButton" href="/chats">
-                  Go to chats
-                </Link>
-                <Link className="authGhostButton" href="/chats?new=1">
-                  Start a new chat
-                </Link>
-                <Link className="authGhostButton" href="/settings">
-                  Edit profile settings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link className="authButton" href="/signup">
-                  Sign up
-                </Link>
-                <Link className="authGhostButton" href="/login">
-                  Log in
-                </Link>
-              </>
-            )}
-          </div>
         </header>
 
         <section className="landing">

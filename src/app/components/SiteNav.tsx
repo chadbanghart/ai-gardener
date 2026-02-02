@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 const navLinks = [
   { href: "/", label: "Home", match: (path: string) => path === "/" },
@@ -9,6 +10,12 @@ const navLinks = [
     href: "/chats",
     label: "Chats",
     match: (path: string) => path === "/chats" || path.startsWith("/chats/"),
+  },
+  {
+    href: "/my-garden",
+    label: "My Garden",
+    match: (path: string) =>
+      path === "/my-garden" || path.startsWith("/my-garden/"),
   },
   {
     href: "/settings",
@@ -19,6 +26,11 @@ const navLinks = [
 
 export default function SiteNav() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const isAuthed = status === "authenticated";
+  const visibleLinks = isAuthed
+    ? navLinks
+    : navLinks.filter((link) => link.href === "/");
 
   return (
     <header className="siteNav">
@@ -27,7 +39,7 @@ export default function SiteNav() {
           AI Garden
         </Link>
         <nav className="siteNavLinks" aria-label="Primary">
-          {navLinks.map((link) => {
+          {visibleLinks.map((link) => {
             const isActive = link.match(pathname);
             return (
               <Link
@@ -41,6 +53,23 @@ export default function SiteNav() {
             );
           })}
         </nav>
+        <div className="siteNavAuth">
+          {status === "loading" && (
+            <span className="authHint">Checking session...</span>
+          )}
+          {isAuthed && (
+            <div className="authControls">
+              <span className="authEmail">{session.user?.email}</span>
+              <button
+                type="button"
+                className="siteNavLink siteNavButton"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type ProfileSettings = {
   location: string;
@@ -47,6 +48,7 @@ const irrigationOptions = [
 export default function SettingsPage() {
   const { status } = useSession();
   const isAuthed = status === "authenticated";
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileSettings>(emptyProfile);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
@@ -83,8 +85,9 @@ export default function SettingsPage() {
     if (status === "unauthenticated") {
       setProfile(emptyProfile);
       setProfileStatus("");
+      router.replace("/");
     }
-  }, [isAuthed, status]);
+  }, [isAuthed, status, router]);
 
   const updateProfileField = (
     field: keyof ProfileSettings,

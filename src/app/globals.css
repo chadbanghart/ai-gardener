@@ -56,12 +56,12 @@ button {
 }
 
 .siteNavInner {
-  width: min(980px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 16px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 20px;
 }
 
@@ -71,12 +71,15 @@ button {
   letter-spacing: 0.02em;
   font-size: 1.1rem;
   color: #f7f8f2;
+  margin-right: 16px;
 }
 
 .siteNavLinks {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 0 1 auto;
+  justify-content: flex-start;
 }
 
 .siteNavLink {
@@ -101,6 +104,32 @@ button {
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.2);
   color: #fffdf7;
+}
+
+.siteNavAuth {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.siteNavAuth .authEmail {
+  color: rgba(247, 248, 242, 0.85);
+}
+
+.siteNavAuth .authHint {
+  color: rgba(247, 248, 242, 0.7);
+}
+
+.siteNavButton {
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.siteNavButton:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .page {

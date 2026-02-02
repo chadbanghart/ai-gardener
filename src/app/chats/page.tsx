@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Pencil, Trash2, X } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -52,7 +52,7 @@ const welcomeMessage: Message = {
 };
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isAuthed = status === "authenticated";
@@ -180,6 +180,7 @@ export default function Home() {
       setProfile(emptyProfile);
       setIsProfileOpen(false);
       setProfileStatus("");
+      router.replace("/");
     }
   }, [isAuthed, startNew, status, router, loadChats, loadProfile]);
 
@@ -402,33 +403,6 @@ export default function Home() {
         <header className="hero">
           <div className="heroTop">
             <span className="eyebrow">AI Garden Assistant</span>
-            <div className="heroAuth">
-              {status === "loading" && (
-                <span className="authHint">Checking session...</span>
-              )}
-              {isAuthed && (
-                <div className="authControls">
-                  <span className="authEmail">{session.user?.email}</span>
-                  <button
-                    type="button"
-                    className="authButton"
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-              {status === "unauthenticated" && (
-                <div className="authControls">
-                  <Link className="authLink" href="/login">
-                    Log in
-                  </Link>
-                  <Link className="authButton" href="/signup">
-                    Sign up
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
           <h1>Grow a calmer, greener garden.</h1>
           <p>
