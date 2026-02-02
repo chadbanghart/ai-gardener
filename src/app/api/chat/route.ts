@@ -229,7 +229,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ reply: nudgedReply, chatId });
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       reply:
         "I couldn't reach the local Ollama service. Make sure it is running and try again.",

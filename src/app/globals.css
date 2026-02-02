@@ -46,6 +46,63 @@ button {
   font-family: inherit;
 }
 
+.siteNav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(47, 95, 63, 0.94);
+  border-bottom: 1px solid rgba(31, 42, 30, 0.2);
+  backdrop-filter: blur(14px);
+}
+
+.siteNavInner {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.siteNavBrand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 1.1rem;
+  color: #f7f8f2;
+}
+
+.siteNavLinks {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.siteNavLink {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(247, 248, 242, 0.78);
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.siteNavLink:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fffdf7;
+}
+
+.siteNavLink.active {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fffdf7;
+}
+
 .page {
   min-height: 100vh;
   padding: 56px 20px 80px;
@@ -448,6 +505,19 @@ button {
   overflow-y: auto;
 }
 
+.settingsPanel {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 45px var(--shadow);
+  overflow: hidden;
+}
+
+.settingsPanel .profileHeader {
+  position: static;
+  box-shadow: none;
+}
+
 .checkboxGroup {
   display: grid;
   gap: 6px;
@@ -650,6 +720,19 @@ button {
 }
 
 @media (max-width: 720px) {
+  .siteNavInner {
+    padding: 14px 16px;
+  }
+
+  .siteNavLinks {
+    gap: 8px;
+  }
+
+  .siteNavLink {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
   .page {
     padding: 40px 16px 64px;
   }

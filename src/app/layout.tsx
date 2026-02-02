@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import SiteNav from "./components/SiteNav";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -28,7 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fraunces.variable} ${workSans.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <SiteNav />
+          {children}
+        </Providers>
       </body>
     </html>
   );
