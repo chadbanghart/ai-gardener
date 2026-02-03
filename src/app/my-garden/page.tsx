@@ -35,6 +35,12 @@ const formatDisplayDate = (value: string) => {
     : value;
 };
 
+const formatShortDate = (value: Date) =>
+  value.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+
 const latestDate = (dates: string[]) =>
   dates.length ? ([...dates].sort().at(-1) ?? "") : "";
 
@@ -42,6 +48,75 @@ const addDays = (value: Date, days: number) => {
   const next = new Date(value);
   next.setDate(next.getDate() + days);
   return next;
+};
+
+const nextDueDate = (
+  baseValue: string | null,
+  intervalDays: number | null,
+  startOfToday: Date,
+) => {
+  if (!baseValue || !intervalDays) return null;
+  const base = parseLocalDate(baseValue);
+  if (!base) return null;
+  let next = addDays(base, intervalDays);
+  while (next < startOfToday) {
+    next = addDays(next, intervalDays);
+  }
+  return next;
+};
+
+const formatTaskLabel = (
+  task: string,
+  date: Date,
+  startOfToday: Date,
+) => {
+  const dateKey = formatDateKey(date);
+  const todayKey = formatDateKey(startOfToday);
+  return dateKey === todayKey
+    ? `${task} today`
+    : `${task} on ${formatShortDate(date)}`;
+};
+
+const nextTaskForPlant = (plant: PlantRecord, startOfToday: Date) => {
+  const tasks: Array<{ label: string; date: Date }> = [];
+  const waterBase = latestDate(plant.wateredDates) || plant.plantedOn;
+  const fertilizeBase = latestDate(plant.fertilizedDates) || plant.plantedOn;
+  const pruneBase = latestDate(plant.prunedDates) || plant.plantedOn;
+
+  const waterNext = nextDueDate(
+    waterBase,
+    plant.waterIntervalDays ?? WATER_INTERVAL_DAYS,
+    startOfToday,
+  );
+  if (waterNext) {
+    tasks.push({ label: "Water", date: waterNext });
+  }
+
+  const fertilizeNext = nextDueDate(
+    fertilizeBase,
+    plant.fertilizeIntervalDays ?? FERTILIZE_INTERVAL_DAYS,
+    startOfToday,
+  );
+  if (fertilizeNext) {
+    tasks.push({ label: "Fertilize", date: fertilizeNext });
+  }
+
+  const pruneNext = nextDueDate(
+    pruneBase,
+    plant.pruneIntervalDays ?? null,
+    startOfToday,
+  );
+  if (pruneNext) {
+    tasks.push({ label: "Prune", date: pruneNext });
+  }
+
+  if (!tasks.length) {
+    return "No tasks scheduled";
+  }
+
+  tasks.sort((a, b) => a.date.getTime() - b.date.getTime());
+  const next = tasks[0];
+  return formatTaskLabel(next.label, next.date, startOfToday);
 };
 
 const reminderDatesInRange = (
@@ -75,6 +150,7 @@ export default function MyGardenPage() {
   const todayYear = today.getFullYear();
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
+  const startOfToday = new Date(todayYear, todayMonth, todayDate);
   const activeMonth = new Date(
     todayYear,
     todayMonth + monthOffset,
@@ -98,7 +174,6 @@ export default function MyGardenPage() {
       isReminder?: boolean;
     }> = [];
 
-    const startOfToday = new Date(todayYear, todayMonth, todayDate);
     const reminderHorizon = addDays(startOfToday, MAX_REMINDER_DAYS);
 
     (plants ?? []).forEach((plant) => {
@@ -491,7 +566,7 @@ export default function MyGardenPage() {
                   </div>
                   <div className="plantMeta">
                     <span>Next task</span>
-                    <strong>{plant.nextTask}</strong>
+                    <strong>{nextTaskForPlant(plant, startOfToday)}</strong>
                   </div>
                 </Link>
               ))}

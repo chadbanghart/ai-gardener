@@ -19,6 +19,12 @@ export default function PlantDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  const today = new Date();
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
   const plantId =
     typeof params?.id === "string"
       ? params.id
@@ -50,6 +56,85 @@ export default function PlantDetailPage() {
 
   const latestDate = (dates: string[]) =>
     dates.length ? [...dates].sort().at(-1) ?? "" : "";
+
+  const formatShortDate = (value: Date) =>
+    value.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+
+  const addDays = (value: Date, days: number) => {
+    const next = new Date(value);
+    next.setDate(next.getDate() + days);
+    return next;
+  };
+
+  const nextDueDate = (
+    baseValue: string | null,
+    intervalDays: number | null,
+    startDate: Date,
+  ) => {
+    if (!baseValue || !intervalDays) return null;
+    const base = parseLocalDate(baseValue);
+    if (!base) return null;
+    let next = addDays(base, intervalDays);
+    while (next < startDate) {
+      next = addDays(next, intervalDays);
+    }
+    return next;
+  };
+
+  const formatTaskLabel = (task: string, date: Date, startDate: Date) => {
+    const isToday = date.toDateString() === startDate.toDateString();
+    return isToday
+      ? `${task} today`
+      : `${task} on ${formatShortDate(date)}`;
+  };
+
+  const nextTaskForPlant = (plantRecord: PlantRecord) => {
+    const tasks: Array<{ label: string; date: Date }> = [];
+    const waterBase =
+      latestDate(plantRecord.wateredDates) || plantRecord.plantedOn;
+    const fertilizeBase =
+      latestDate(plantRecord.fertilizedDates) || plantRecord.plantedOn;
+    const pruneBase =
+      latestDate(plantRecord.prunedDates) || plantRecord.plantedOn;
+
+    const waterNext = nextDueDate(
+      waterBase,
+      plantRecord.waterIntervalDays ?? 7,
+      startOfToday,
+    );
+    if (waterNext) {
+      tasks.push({ label: "Water", date: waterNext });
+    }
+
+    const fertilizeNext = nextDueDate(
+      fertilizeBase,
+      plantRecord.fertilizeIntervalDays ?? 30,
+      startOfToday,
+    );
+    if (fertilizeNext) {
+      tasks.push({ label: "Fertilize", date: fertilizeNext });
+    }
+
+    const pruneNext = nextDueDate(
+      pruneBase,
+      plantRecord.pruneIntervalDays ?? null,
+      startOfToday,
+    );
+    if (pruneNext) {
+      tasks.push({ label: "Prune", date: pruneNext });
+    }
+
+    if (!tasks.length) {
+      return "No tasks scheduled";
+    }
+
+    tasks.sort((a, b) => a.date.getTime() - b.date.getTime());
+    const next = tasks[0];
+    return formatTaskLabel(next.label, next.date, startOfToday);
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -95,7 +180,7 @@ export default function PlantDetailPage() {
   };
 
   const updateDateListField = (
-    field: "wateredDates" | "fertilizedDates",
+    field: "wateredDates" | "fertilizedDates" | "prunedDates",
     value: string,
   ) => {
     const dates = value
@@ -284,16 +369,6 @@ export default function PlantDetailPage() {
                   />
                 </label>
                 <label>
-                  Next task
-                  <input
-                    type="text"
-                    value={draft.nextTask}
-                    onChange={(event) =>
-                      updateField("nextTask", event.target.value)
-                    }
-                  />
-                </label>
-                <label>
                   Planted on
                   <input
                     type="date"
@@ -402,7 +477,7 @@ export default function PlantDetailPage() {
               </div>
               <div className="highlightCard">
                 <h3>Next task</h3>
-                <p>{plant?.nextTask}</p>
+                <p>{plant ? nextTaskForPlant(plant) : "No tasks scheduled"}</p>
               </div>
               <div className="highlightCard">
                 <h3>Planted on</h3>

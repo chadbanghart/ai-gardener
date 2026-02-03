@@ -46,7 +46,7 @@ export default function NewPlantPage() {
   };
 
   const updateDateListField = (
-    field: "wateredDates" | "fertilizedDates",
+    field: "wateredDates" | "fertilizedDates" | "prunedDates",
     value: string,
   ) => {
     const dates = value
@@ -160,17 +160,6 @@ export default function NewPlantPage() {
                     updateField("status", event.target.value)
                   }
                   placeholder="Seeded, Thriving, Harvest ready"
-                />
-              </label>
-              <label>
-                Next task
-                <input
-                  type="text"
-                  value={plant.nextTask}
-                  onChange={(event) =>
-                    updateField("nextTask", event.target.value)
-                  }
-                  placeholder="Water tomorrow, Thin seedlings"
                 />
               </label>
               <label>
