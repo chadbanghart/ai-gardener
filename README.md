@@ -24,7 +24,5 @@ npm run db:push
 
 #### My Garden Page
 
-- plant properties
-- Calendar with notifications/reminders for events associated with plants currently in garden.
 - Wish Lists for plants you want to add to your garden when the season is right
-- Plant details, when plant card is clicked, navigated to details about that plant, such as plants age, next watering
+- ability to see chat while on My Garden page and continue talking with AI while working on other pages.
