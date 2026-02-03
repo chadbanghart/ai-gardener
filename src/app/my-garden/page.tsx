@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import type { PlantRecord } from "@/lib/plants";
 import { fetchPlants } from "@/lib/plants";
 
+type NextReminder = { date: string; plantName: string };
+
 const MAX_REMINDER_DAYS = 60;
 const WATER_INTERVAL_DAYS = 7;
 const FERTILIZE_INTERVAL_DAYS = 30;
@@ -146,6 +148,7 @@ export default function MyGardenPage() {
   const [showWaterReminders, setShowWaterReminders] = useState(true);
   const [showFertilizeReminders, setShowFertilizeReminders] = useState(true);
   const [showPruneReminders, setShowPruneReminders] = useState(true);
+  const [locationFilter, setLocationFilter] = useState("all");
   const todayYear = today.getFullYear();
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
@@ -162,6 +165,7 @@ export default function MyGardenPage() {
   const hasPlantedFeature = (plants ?? []).some((plant) => plant.plantedOn);
   const hasAnyCareFilters =
     hasWaterFeature || hasFertilizeFeature || hasPruneFeature;
+  const reminderHorizon = addDays(startOfToday, MAX_REMINDER_DAYS);
   const activeMonth = new Date(todayYear, todayMonth + monthOffset, 1);
   const calendarYear = activeMonth.getFullYear();
   const calendarMonth = activeMonth.getMonth();
@@ -180,9 +184,6 @@ export default function MyGardenPage() {
         | "reminder-prune";
       isReminder?: boolean;
     }> = [];
-
-    const reminderHorizon = addDays(startOfToday, MAX_REMINDER_DAYS);
-
     (plants ?? []).forEach((plant) => {
       if (plant.plantedOn) {
         events.push({
@@ -296,6 +297,25 @@ export default function MyGardenPage() {
     return events;
   })();
 
+  const plantsByLocation = (() => {
+    const map = new Map<string, PlantRecord[]>();
+    (plants ?? []).forEach((plant) => {
+      const location = plant.location.trim() || "Unassigned";
+      const group = map.get(location) ?? [];
+      group.push(plant);
+      map.set(location, group);
+    });
+    return Array.from(map.entries()).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+  })();
+
+  const locationOptions = plantsByLocation.map(([location]) => location);
+  const filteredLocations =
+    locationFilter === "all"
+      ? plantsByLocation
+      : plantsByLocation.filter(([location]) => location === locationFilter);
+
   const eventsByDate = (() => {
     const map = new Map<string, typeof calendarEvents>();
     calendarEvents.forEach((event) => {
@@ -306,10 +326,87 @@ export default function MyGardenPage() {
     return map;
   })();
 
-  const upcomingReminders = calendarEvents
-    .filter((event) => event.isReminder)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 5);
+  const upcomingReminders = (() => {
+    const remindersByKind = new Map<
+      string,
+      typeof calendarEvents
+    >();
+    calendarEvents
+      .filter((event) => event.isReminder)
+      .forEach((event) => {
+        const list = remindersByKind.get(event.kind) ?? [];
+        list.push(event);
+        remindersByKind.set(event.kind, list);
+      });
+
+    const categories = [
+      {
+        kind: "reminder-water" as const,
+        label: "Water reminder",
+        enabled: showWaterReminders,
+        getBase: (plant: PlantRecord) =>
+          latestDate(plant.wateredDates) || plant.plantedOn,
+        getInterval: (plant: PlantRecord) =>
+          plant.waterIntervalDays ?? WATER_INTERVAL_DAYS,
+      },
+      {
+        kind: "reminder-fertilize" as const,
+        label: "Fertilize reminder",
+        enabled: showFertilizeReminders,
+        getBase: (plant: PlantRecord) =>
+          latestDate(plant.fertilizedDates) || plant.plantedOn,
+        getInterval: (plant: PlantRecord) =>
+          plant.fertilizeIntervalDays ?? FERTILIZE_INTERVAL_DAYS,
+      },
+      {
+        kind: "reminder-prune" as const,
+        label: "Prune reminder",
+        enabled: showPruneReminders,
+        getBase: (plant: PlantRecord) =>
+          latestDate(plant.prunedDates) || plant.plantedOn,
+        getInterval: (plant: PlantRecord) => plant.pruneIntervalDays ?? null,
+      },
+    ];
+
+    const results: typeof calendarEvents = [];
+
+    categories.forEach((category) => {
+      if (!category.enabled) return;
+      const existing = remindersByKind.get(category.kind) ?? [];
+      if (existing.length > 0) {
+        results.push(...existing);
+        return;
+      }
+
+      let nextReminder: NextReminder | null = null;
+
+      (plants ?? []).forEach((plant) => {
+        const base = category.getBase(plant);
+        const interval = category.getInterval(plant);
+        const next = nextDueDate(base, interval, startOfToday);
+        if (!next) return;
+        if (next <= reminderHorizon) return;
+        const dateKey = formatDateKey(next);
+        if (!nextReminder || dateKey < nextReminder.date) {
+          nextReminder = { date: dateKey, plantName: plant.name };
+        }
+      });
+
+      if (!nextReminder) return;
+      const { date, plantName } = nextReminder;
+      results.push({
+        date,
+        label: category.label,
+        plantName,
+        kind: category.kind,
+        isReminder: true,
+      });
+    });
+
+    return results
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 5);
+  })();
 
   const monthStart = new Date(calendarYear, calendarMonth, 1);
   const monthEnd = new Date(calendarYear, calendarMonth + 1, 0);
@@ -370,6 +467,21 @@ export default function MyGardenPage() {
           </div>
 
           <div className="plantActions">
+            <label className="locationFilter">
+              <span>Filter by location</span>
+              <select
+                value={locationFilter}
+                onChange={(event) => setLocationFilter(event.target.value)}
+                aria-label="Filter plants by location"
+              >
+                <option value="all">All locations</option>
+                {locationOptions.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Link className="authButton" href="/my-garden/plants/new">
               Add plant
             </Link>
@@ -391,29 +503,47 @@ export default function MyGardenPage() {
               </Link>
             </div>
           ) : (
-            <div className="plantGrid">
-              {plants.map((plant) => (
-                <Link
-                  className="plantCard"
-                  key={plant.id}
-                  href={`/my-garden/plants/${plant.id}`}
-                >
-                  <div className="plantCardHeader">
+            <div className="locationGroups">
+              {filteredLocations.map(([location, locationPlants]) => (
+                <div className="locationGroup" key={location}>
+                  <div className="locationHeader">
                     <div>
-                      <h3>{plant.name}</h3>
-                      <p className="plantVariety">{plant.variety}</p>
+                      <h3>{location}</h3>
+                      <p>{locationPlants.length} plants</p>
                     </div>
-                    <span className="plantTag">{plant.status}</span>
                   </div>
-                  <div className="plantMeta">
-                    <span>Location</span>
-                    <strong>{plant.location}</strong>
+                  <div className="plantGrid">
+                    {locationPlants.map((plant) => {
+                      const locationLabel =
+                        plant.location.trim() || "Unassigned";
+                      return (
+                        <Link
+                          className="plantCard"
+                          key={plant.id}
+                          href={`/my-garden/plants/${plant.id}`}
+                        >
+                          <div className="plantCardHeader">
+                            <div>
+                              <h3>{plant.name}</h3>
+                              <p className="plantVariety">{plant.variety}</p>
+                            </div>
+                            <span className="plantTag">{plant.status}</span>
+                          </div>
+                          <div className="plantMeta">
+                            <span>Location</span>
+                            <strong>{locationLabel}</strong>
+                          </div>
+                          <div className="plantMeta">
+                            <span>Next task</span>
+                            <strong>
+                              {nextTaskForPlant(plant, startOfToday)}
+                            </strong>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
-                  <div className="plantMeta">
-                    <span>Next task</span>
-                    <strong>{nextTaskForPlant(plant, startOfToday)}</strong>
-                  </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
