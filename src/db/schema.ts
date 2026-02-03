@@ -37,6 +37,25 @@ export const userProfiles = pgTable("user_profiles", {
     .notNull(),
 });
 
+export const plants = pgTable("plants", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  name: text("name").notNull(),
+  variety: text("variety"),
+  location: text("location"),
+  status: text("status"),
+  nextTask: text("next_task"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),

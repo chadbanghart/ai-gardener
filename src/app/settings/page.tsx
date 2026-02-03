@@ -193,14 +193,6 @@ export default function SettingsPage() {
                 >
                   {isProfileSaving ? "Saving" : "Save"}
                 </button>
-                <button
-                  type="button"
-                  className="profileCloseButton"
-                  onClick={() => void loadProfile()}
-                  disabled={isProfileLoading || isProfileSaving}
-                >
-                  Refresh
-                </button>
               </div>
             </div>
             <div className="profileBody">

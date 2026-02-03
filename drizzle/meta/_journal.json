@@ -36,6 +36,13 @@
       "when": 1768349222889,
       "tag": "0004_peaceful_sprite",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770144781992,
+      "tag": "0005_early_raza",
+      "breakpoints": true
     }
   ]
 }
