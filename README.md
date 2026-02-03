@@ -26,3 +26,6 @@ npm run db:push
 
 - Wish Lists for plants you want to add to your garden when the season is right
 - ability to see chat while on My Garden page and continue talking with AI while working on other pages.
+- have plants be organized by its location, ie a raised bed is its own div. each plant in that raised bed is placed in that div
+- add plant life cycle property, expected harvest date
+- add delete button on garden card to delete a plant or location

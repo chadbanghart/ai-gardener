@@ -1105,16 +1105,22 @@ button {
 .calendarEvents {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
 .calendarEvent {
-  font-size: 0.62rem;
-  padding: 2px 8px;
+  font-size: 0.6rem;
+  padding: 2px 4px;
   border-radius: 999px;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: rgba(47, 95, 63, 0.08);
   color: #2f5f3f;
 }
@@ -1230,8 +1236,8 @@ button {
 
 .sectionEyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  font-size: 1.5rem;
   font-weight: 700;
   color: rgba(47, 95, 63, 0.65);
   margin: 0 0 10px;

@@ -41,6 +41,9 @@ const formatShortDate = (value: Date) =>
     day: "numeric",
   });
 
+const abbreviateName = (value: string, maxLength = 9) =>
+  value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+
 const latestDate = (dates: string[]) =>
   dates.length ? ([...dates].sort().at(-1) ?? "") : "";
 
@@ -65,11 +68,7 @@ const nextDueDate = (
   return next;
 };
 
-const formatTaskLabel = (
-  task: string,
-  date: Date,
-  startOfToday: Date,
-) => {
+const formatTaskLabel = (task: string, date: Date, startOfToday: Date) => {
   const dateKey = formatDateKey(date);
   const todayKey = formatDateKey(startOfToday);
   return dateKey === todayKey
@@ -151,11 +150,19 @@ export default function MyGardenPage() {
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const startOfToday = new Date(todayYear, todayMonth, todayDate);
-  const activeMonth = new Date(
-    todayYear,
-    todayMonth + monthOffset,
-    1,
+  const hasWaterFeature = (plants ?? []).some(
+    (plant) => plant.plantedOn || plant.wateredDates.length > 0,
   );
+  const hasFertilizeFeature = (plants ?? []).some(
+    (plant) => plant.plantedOn || plant.fertilizedDates.length > 0,
+  );
+  const hasPruneFeature = (plants ?? []).some(
+    (plant) => plant.pruneIntervalDays != null || plant.prunedDates.length > 0,
+  );
+  const hasPlantedFeature = (plants ?? []).some((plant) => plant.plantedOn);
+  const hasAnyCareFilters =
+    hasWaterFeature || hasFertilizeFeature || hasPruneFeature;
+  const activeMonth = new Date(todayYear, todayMonth + monthOffset, 1);
   const calendarYear = activeMonth.getFullYear();
   const calendarMonth = activeMonth.getMonth();
   const calendarEvents = (() => {
@@ -333,7 +340,7 @@ export default function MyGardenPage() {
               : "Could not load plants. Please try again.";
           setError(message);
           setPlants([]);
-        })
+        });
     }
   }, [status]);
 
@@ -355,11 +362,68 @@ export default function MyGardenPage() {
           </p>
         </header>
 
+        <section className="gardenSection" aria-labelledby="my-plants">
+          <div className="sectionHeader">
+            <div>
+              <p className="sectionEyebrow">My plants</p>
+            </div>
+          </div>
+
+          <div className="plantActions">
+            <Link className="authButton" href="/my-garden/plants/new">
+              Add plant
+            </Link>
+          </div>
+
+          {plants === null ? (
+            <div className="emptyState">
+              <h3>Loading plants...</h3>
+            </div>
+          ) : plants.length === 0 ? (
+            <div className="emptyState">
+              <h3>No plants yet.</h3>
+              <p>
+                Add your first plant to start tracking notes, tasks, and
+                progress.
+              </p>
+              <Link className="authButton" href="/my-garden/plants/new">
+                Plant your first plant
+              </Link>
+            </div>
+          ) : (
+            <div className="plantGrid">
+              {plants.map((plant) => (
+                <Link
+                  className="plantCard"
+                  key={plant.id}
+                  href={`/my-garden/plants/${plant.id}`}
+                >
+                  <div className="plantCardHeader">
+                    <div>
+                      <h3>{plant.name}</h3>
+                      <p className="plantVariety">{plant.variety}</p>
+                    </div>
+                    <span className="plantTag">{plant.status}</span>
+                  </div>
+                  <div className="plantMeta">
+                    <span>Location</span>
+                    <strong>{plant.location}</strong>
+                  </div>
+                  <div className="plantMeta">
+                    <span>Next task</span>
+                    <strong>{nextTaskForPlant(plant, startOfToday)}</strong>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+          {error && <div className="profileFooter">{error}</div>}
+        </section>
+
         <section className="gardenSection" aria-labelledby="care-calendar">
           <div className="sectionHeader">
             <div>
               <p className="sectionEyebrow">Care calendar</p>
-              <h2 id="care-calendar">Care calendar</h2>
             </div>
           </div>
 
@@ -393,16 +457,24 @@ export default function MyGardenPage() {
                   </button>
                 </div>
                 <div className="calendarLegendItems">
-                  <span className="calendarLegendItem reminder-water">
-                    Water
-                  </span>
-                  <span className="calendarLegendItem reminder-fertilize">
-                    Fertilize
-                  </span>
-                  <span className="calendarLegendItem reminder-prune">
-                    Prune
-                  </span>
-                  <span className="calendarLegendItem planted">Planted</span>
+                  {hasWaterFeature && (
+                    <span className="calendarLegendItem reminder-water">
+                      Water
+                    </span>
+                  )}
+                  {hasFertilizeFeature && (
+                    <span className="calendarLegendItem reminder-fertilize">
+                      Fertilize
+                    </span>
+                  )}
+                  {hasPruneFeature && (
+                    <span className="calendarLegendItem reminder-prune">
+                      Prune
+                    </span>
+                  )}
+                  {hasPlantedFeature && (
+                    <span className="calendarLegendItem planted">Planted</span>
+                  )}
                 </div>
               </div>
               <div className="calendarGrid" role="grid">
@@ -443,7 +515,7 @@ export default function MyGardenPage() {
                             className={`calendarEvent ${event.kind}`}
                             title={`${event.label} · ${event.plantName}`}
                           >
-                            {event.plantName}
+                            {abbreviateName(event.plantName)}
                           </span>
                         ))}
                       </div>
@@ -455,42 +527,50 @@ export default function MyGardenPage() {
 
             <div className="calendarSidebar">
               <h3>Upcoming reminders</h3>
-              <div
-                className="calendarFilters"
-                role="group"
-                aria-label="Care filters"
-              >
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={showWaterReminders}
-                    onChange={(event) =>
-                      setShowWaterReminders(event.target.checked)
-                    }
-                  />
-                  Water
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={showFertilizeReminders}
-                    onChange={(event) =>
-                      setShowFertilizeReminders(event.target.checked)
-                    }
-                  />
-                  Fertilize
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={showPruneReminders}
-                    onChange={(event) =>
-                      setShowPruneReminders(event.target.checked)
-                    }
-                  />
-                  Prune
-                </label>
-              </div>
+              {hasAnyCareFilters && (
+                <div
+                  className="calendarFilters"
+                  role="group"
+                  aria-label="Care filters"
+                >
+                  {hasWaterFeature && (
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={showWaterReminders}
+                        onChange={(event) =>
+                          setShowWaterReminders(event.target.checked)
+                        }
+                      />
+                      Water
+                    </label>
+                  )}
+                  {hasFertilizeFeature && (
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={showFertilizeReminders}
+                        onChange={(event) =>
+                          setShowFertilizeReminders(event.target.checked)
+                        }
+                      />
+                      Fertilize
+                    </label>
+                  )}
+                  {hasPruneFeature && (
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={showPruneReminders}
+                        onChange={(event) =>
+                          setShowPruneReminders(event.target.checked)
+                        }
+                      />
+                      Prune
+                    </label>
+                  )}
+                </div>
+              )}
               {upcomingReminders.length === 0 ? (
                 <p className="calendarEmpty">
                   Add a planted date or care history to see reminders here.
@@ -511,68 +591,6 @@ export default function MyGardenPage() {
               )}
             </div>
           </div>
-        </section>
-
-        <section className="gardenSection" aria-labelledby="my-plants">
-          <div className="sectionHeader">
-            <div>
-              <p className="sectionEyebrow">My plants</p>
-              <h2 id="my-plants">Every plant you are tracking.</h2>
-            </div>
-            <p className="sectionHint">
-              Tap a card to open the plant details page.
-            </p>
-          </div>
-
-          <div className="plantActions">
-            <Link className="authButton" href="/my-garden/plants/new">
-              Add plant
-            </Link>
-          </div>
-
-          {plants === null ? (
-            <div className="emptyState">
-              <h3>Loading plants...</h3>
-            </div>
-          ) : plants.length === 0 ? (
-            <div className="emptyState">
-              <h3>No plants yet.</h3>
-              <p>
-                Add your first plant to start tracking notes, tasks, and
-                progress.
-              </p>
-              <Link className="authButton" href="/my-garden/plants/new">
-                Create your first plant
-              </Link>
-            </div>
-          ) : (
-            <div className="plantGrid">
-              {plants.map((plant) => (
-                <Link
-                  className="plantCard"
-                  key={plant.id}
-                  href={`/my-garden/plants/${plant.id}`}
-                >
-                  <div className="plantCardHeader">
-                    <div>
-                      <h3>{plant.name}</h3>
-                      <p className="plantVariety">{plant.variety}</p>
-                    </div>
-                    <span className="plantTag">{plant.status}</span>
-                  </div>
-                  <div className="plantMeta">
-                    <span>Location</span>
-                    <strong>{plant.location}</strong>
-                  </div>
-                  <div className="plantMeta">
-                    <span>Next task</span>
-                    <strong>{nextTaskForPlant(plant, startOfToday)}</strong>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-          {error && <div className="profileFooter">{error}</div>}
         </section>
       </div>
     </div>

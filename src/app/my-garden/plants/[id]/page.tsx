@@ -136,6 +136,28 @@ export default function PlantDetailPage() {
     return formatTaskLabel(next.label, next.date, startOfToday);
   };
 
+  const formatPlantAge = (plantedOn: string) => {
+    const plantedDate = parseLocalDate(plantedOn);
+    if (!plantedDate) return "Age: Not set";
+    const totalDays = Math.max(
+      0,
+      Math.floor(
+        (startOfToday.getTime() - plantedDate.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
+    const years = Math.floor(totalDays / 365);
+    const remainingDays = totalDays % 365;
+    const weeks = Math.floor(remainingDays / 7);
+    const days = remainingDays % 7;
+    const parts = [];
+    if (years >= 1) {
+      parts.push(`${years}y`);
+    }
+    parts.push(`${weeks}w`, `${days}d`);
+    return `Age: ${parts.join(" ")}`;
+  };
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/");
@@ -468,6 +490,7 @@ export default function PlantDetailPage() {
           <section className="landing">
             <div className="landingIntro">
               <h2>{plant?.status}</h2>
+              <p>{plant ? formatPlantAge(plant.plantedOn) : "Age: Not set"}</p>
               <p>{plant?.notes}</p>
             </div>
             <div className="landingHighlights">
