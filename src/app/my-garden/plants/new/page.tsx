@@ -13,6 +13,13 @@ const emptyPlant: PlantInput = {
   location: "",
   status: "",
   nextTask: "",
+  plantedOn: "",
+  wateredDates: [],
+  fertilizedDates: [],
+  prunedDates: [],
+  waterIntervalDays: null,
+  fertilizeIntervalDays: null,
+  pruneIntervalDays: null,
   notes: "",
 };
 
@@ -31,9 +38,37 @@ export default function NewPlantPage() {
 
   const isValid = useMemo(() => plant.name.trim().length > 0, [plant.name]);
 
-  const updateField = (field: keyof PlantInput, value: string) => {
+  const updateField = <K extends keyof PlantInput>(
+    field: K,
+    value: PlantInput[K],
+  ) => {
     setPlant((prev) => ({ ...prev, [field]: value }));
   };
+
+  const updateDateListField = (
+    field: "wateredDates" | "fertilizedDates",
+    value: string,
+  ) => {
+    const dates = value
+      .split(/[\n,]+/)
+      .map((entry) => entry.trim())
+      .map((entry) => (entry.includes("T") ? entry.slice(0, 10) : entry))
+      .filter(Boolean);
+    updateField(field, dates);
+  };
+
+  const dateListValue = (dates: string[]) => dates.join("\n");
+
+  const updateIntervalField = (
+    field: "waterIntervalDays" | "fertilizeIntervalDays" | "pruneIntervalDays",
+    value: string,
+  ) => {
+    const trimmed = value.trim();
+    updateField(field, trimmed.length ? Number.parseInt(trimmed, 10) : null);
+  };
+
+  const intervalValue = (value: number | null) =>
+    value === null ? "" : String(value);
 
   const handleSave = async () => {
     if (!isValid || isSaving) return;
@@ -136,6 +171,88 @@ export default function NewPlantPage() {
                     updateField("nextTask", event.target.value)
                   }
                   placeholder="Water tomorrow, Thin seedlings"
+                />
+              </label>
+              <label>
+                Planted on
+                <input
+                  type="date"
+                  value={plant.plantedOn}
+                  onChange={(event) =>
+                    updateField("plantedOn", event.target.value)
+                  }
+                />
+              </label>
+              <label>
+                Watered dates (one per line)
+                <textarea
+                  rows={4}
+                  value={dateListValue(plant.wateredDates)}
+                  onChange={(event) =>
+                    updateDateListField("wateredDates", event.target.value)
+                  }
+                  placeholder="2026-02-01"
+                />
+              </label>
+              <label>
+                Fertilized dates (one per line)
+                <textarea
+                  rows={4}
+                  value={dateListValue(plant.fertilizedDates)}
+                  onChange={(event) =>
+                    updateDateListField("fertilizedDates", event.target.value)
+                  }
+                  placeholder="2026-02-01"
+                />
+              </label>
+              <label>
+                Pruned dates (one per line)
+                <textarea
+                  rows={4}
+                  value={dateListValue(plant.prunedDates)}
+                  onChange={(event) =>
+                    updateDateListField("prunedDates", event.target.value)
+                  }
+                  placeholder="2026-02-01"
+                />
+              </label>
+              <label>
+                Watering cadence (days, optional)
+                <input
+                  type="number"
+                  min="1"
+                  value={intervalValue(plant.waterIntervalDays)}
+                  onChange={(event) =>
+                    updateIntervalField("waterIntervalDays", event.target.value)
+                  }
+                  placeholder="7"
+                />
+              </label>
+              <label>
+                Fertilizing cadence (days, optional)
+                <input
+                  type="number"
+                  min="1"
+                  value={intervalValue(plant.fertilizeIntervalDays)}
+                  onChange={(event) =>
+                    updateIntervalField(
+                      "fertilizeIntervalDays",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="30"
+                />
+              </label>
+              <label>
+                Pruning cadence (days, optional)
+                <input
+                  type="number"
+                  min="1"
+                  value={intervalValue(plant.pruneIntervalDays)}
+                  onChange={(event) =>
+                    updateIntervalField("pruneIntervalDays", event.target.value)
+                  }
+                  placeholder="45"
                 />
               </label>
               <label>

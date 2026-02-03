@@ -89,8 +89,12 @@ button {
   font-weight: 600;
   color: rgba(247, 248, 242, 0.78);
   border: 1px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease,
-    border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .siteNavLink:hover {
@@ -151,7 +155,9 @@ button {
   padding: 8px 12px;
   border-radius: 999px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -211,7 +217,9 @@ button {
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .newChatButton:hover {
@@ -237,7 +245,9 @@ button {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  transition: border-color 0.15s ease, background 0.15s ease,
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
     transform 0.15s ease;
 }
 
@@ -328,8 +338,11 @@ button {
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease,
-    color 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .historyActionButton:disabled {
@@ -424,7 +437,9 @@ button {
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .profileSaveButton:disabled {
@@ -503,7 +518,9 @@ button {
   cursor: pointer;
   font-weight: 600;
   font-size: 0.78rem;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .profileCloseButton:hover {
@@ -627,7 +644,10 @@ button {
   color: #9c2f2f;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border 0.2s ease;
 }
 
 .dangerButton:hover {
@@ -650,7 +670,9 @@ button {
   border-radius: 999px;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .promptChip:hover {
@@ -754,7 +776,9 @@ button {
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .composer button:disabled {
@@ -848,8 +872,11 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease,
-    background 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .authButton {
@@ -942,6 +969,257 @@ button {
   gap: 20px;
 }
 
+.calendarLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(220px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.calendarMain {
+  display: grid;
+  gap: 12px;
+}
+
+.calendarLegendItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.calendarLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(47, 95, 63, 0.12);
+  color: #2f5f3f;
+}
+
+.calendarLegendItem.reminder-water {
+  background: rgba(72, 146, 201, 0.16);
+  color: #1f4a6c;
+}
+
+.calendarLegendItem.reminder-fertilize {
+  background: rgba(147, 117, 220, 0.16);
+  color: #4f2f8a;
+}
+
+.calendarLegendItem.reminder-prune {
+  background: rgba(233, 178, 95, 0.2);
+  color: #6b3f0b;
+}
+
+.calendarLegendItem.planted {
+  background: rgba(122, 79, 41, 0.18);
+  color: #7a4f29;
+}
+
+.calendarNavLeft {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.calendarHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.calendarFilters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(31, 42, 30, 0.72);
+}
+
+.calendarFilters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendarFilters input {
+  accent-color: #2f5f3f;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  background: rgba(31, 42, 30, 0.04);
+  border: 1px solid rgba(31, 42, 30, 0.14);
+  border-radius: 20px;
+  padding: 12px;
+}
+
+.calendarMonthTitle {
+  grid-column: 1 / -1;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2a1e;
+  padding: 6px 4px 4px;
+  text-align: center;
+}
+
+.calendarWeekday {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: rgba(47, 95, 63, 0.65);
+  text-align: center;
+}
+
+.calendarCell {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(31, 42, 30, 0.12);
+  padding: 10px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calendarCell.isEmpty {
+  background: transparent;
+  border: 1px dashed rgba(31, 42, 30, 0.15);
+}
+
+.calendarDay {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2f5f3f;
+}
+
+.calendarEvents {
+  display: grid;
+  gap: 4px;
+}
+
+.calendarEvent {
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(47, 95, 63, 0.08);
+  color: #2f5f3f;
+}
+
+.calendarEvent.planted {
+  background: rgba(122, 79, 41, 0.12);
+  color: #7a4f29;
+}
+
+.calendarEvent.watered {
+  background: rgba(72, 146, 201, 0.16);
+  color: #1f4a6c;
+}
+
+.calendarEvent.fertilized {
+  background: rgba(147, 117, 220, 0.16);
+  color: #4f2f8a;
+}
+
+.calendarEvent.pruned {
+  background: rgba(233, 178, 95, 0.2);
+  color: #6b3f0b;
+}
+
+.calendarEvent.reminder-water {
+  background: rgba(72, 146, 201, 0.12);
+  color: #1f4a6c;
+  border: 1px dashed rgba(72, 146, 201, 0.45);
+}
+
+.calendarEvent.reminder-fertilize {
+  background: rgba(147, 117, 220, 0.12);
+  color: #4f2f8a;
+  border: 1px dashed rgba(147, 117, 220, 0.45);
+}
+
+.calendarEvent.reminder-prune {
+  background: rgba(233, 178, 95, 0.12);
+  color: #6b3f0b;
+  border: 1px dashed rgba(233, 178, 95, 0.55);
+}
+
+.calendarSidebar {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(31, 42, 30, 0.12);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.calendarSidebar h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.calendarEmpty {
+  margin: 0;
+  color: rgba(31, 42, 30, 0.6);
+}
+
+.calendarReminderList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.calendarReminderList li {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(47, 95, 63, 0.08);
+  font-size: 0.85rem;
+}
+
+.calendarReminder.reminder-water {
+  background: rgba(72, 146, 201, 0.14);
+  color: #1f4a6c;
+}
+
+.calendarReminder.reminder-fertilize {
+  background: rgba(147, 117, 220, 0.14);
+  color: #4f2f8a;
+}
+
+.calendarReminder.reminder-prune {
+  background: rgba(233, 178, 95, 0.16);
+  color: #6b3f0b;
+}
+
+.calendarReminderList span:first-child {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.65rem;
+  color: rgba(31, 42, 30, 0.6);
+}
+
+.calendarReminderList strong {
+  font-size: 1rem;
+  color: #1f2a1e;
+}
+
 .sectionHeader {
   display: flex;
   align-items: flex-end;
@@ -991,7 +1269,10 @@ button {
   color: inherit;
   display: grid;
   gap: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border 0.2s ease;
 }
 
 .plantCard:hover {
@@ -1088,11 +1369,8 @@ button {
   display: grid;
   place-items: center;
   padding: 48px 16px;
-  background: radial-gradient(
-      circle at top,
-      rgba(255, 255, 255, 0.8),
-      transparent 55%
-    ),
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.8), transparent 55%),
     linear-gradient(160deg, #f9f4ea 0%, #e8f3e1 55%, #f0efe8 100%);
 }
 
@@ -1144,7 +1422,9 @@ button {
   font-weight: 600;
   font-size: 1rem;
   box-shadow: 0 12px 24px rgba(47, 95, 63, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .authForm button:not(:disabled):hover {
@@ -1194,5 +1474,19 @@ button {
 
   .landingIntro h2 {
     font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .calendarLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendarHeaderRow {
+    align-items: flex-start;
+  }
+
+  .calendarWeekday {
+    font-size: 0.6rem;
   }
 }

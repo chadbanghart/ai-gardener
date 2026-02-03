@@ -30,6 +30,26 @@ export default function PlantDetailPage() {
     () => Boolean(draft?.name.trim()),
     [draft?.name],
   );
+  const parseLocalDate = (value: string) => {
+    const trimmed = value.includes("T") ? value.slice(0, 10) : value;
+    const [year, month, day] = trimmed.split("-").map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDisplayDate = (value: string) => {
+    const parsed = parseLocalDate(value);
+    return parsed
+      ? parsed.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "Not set";
+  };
+
+  const latestDate = (dates: string[]) =>
+    dates.length ? [...dates].sort().at(-1) ?? "" : "";
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -67,9 +87,37 @@ export default function PlantDetailPage() {
     setIsEditing((prev) => !prev);
   };
 
-  const updateField = (field: keyof PlantRecord, value: string) => {
+  const updateField = <K extends keyof PlantRecord>(
+    field: K,
+    value: PlantRecord[K],
+  ) => {
     setDraft((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
+
+  const updateDateListField = (
+    field: "wateredDates" | "fertilizedDates",
+    value: string,
+  ) => {
+    const dates = value
+      .split(/[\n,]+/)
+      .map((entry) => entry.trim())
+      .map((entry) => (entry.includes("T") ? entry.slice(0, 10) : entry))
+      .filter(Boolean);
+    updateField(field, dates);
+  };
+
+  const dateListValue = (dates: string[]) => dates.join("\n");
+
+  const updateIntervalField = (
+    field: "waterIntervalDays" | "fertilizeIntervalDays" | "pruneIntervalDays",
+    value: string,
+  ) => {
+    const trimmed = value.trim();
+    updateField(field, trimmed.length ? Number.parseInt(trimmed, 10) : null);
+  };
+
+  const intervalValue = (value: number | null) =>
+    value === null ? "" : String(value);
 
   const handleSave = async () => {
     if (!draft || !isValid || isSaving) return;
@@ -246,6 +294,88 @@ export default function PlantDetailPage() {
                   />
                 </label>
                 <label>
+                  Planted on
+                  <input
+                    type="date"
+                    value={draft.plantedOn}
+                    onChange={(event) =>
+                      updateField("plantedOn", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  Watered dates (one per line)
+                  <textarea
+                    rows={4}
+                    value={dateListValue(draft.wateredDates)}
+                    onChange={(event) =>
+                      updateDateListField("wateredDates", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  Fertilized dates (one per line)
+                  <textarea
+                    rows={4}
+                    value={dateListValue(draft.fertilizedDates)}
+                    onChange={(event) =>
+                      updateDateListField("fertilizedDates", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  Pruned dates (one per line)
+                  <textarea
+                    rows={4}
+                    value={dateListValue(draft.prunedDates)}
+                    onChange={(event) =>
+                      updateDateListField("prunedDates", event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  Watering cadence (days, optional)
+                  <input
+                    type="number"
+                    min="1"
+                    value={intervalValue(draft.waterIntervalDays)}
+                    onChange={(event) =>
+                      updateIntervalField(
+                        "waterIntervalDays",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </label>
+                <label>
+                  Fertilizing cadence (days, optional)
+                  <input
+                    type="number"
+                    min="1"
+                    value={intervalValue(draft.fertilizeIntervalDays)}
+                    onChange={(event) =>
+                      updateIntervalField(
+                        "fertilizeIntervalDays",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </label>
+                <label>
+                  Pruning cadence (days, optional)
+                  <input
+                    type="number"
+                    min="1"
+                    value={intervalValue(draft.pruneIntervalDays)}
+                    onChange={(event) =>
+                      updateIntervalField(
+                        "pruneIntervalDays",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </label>
+                <label>
                   Notes
                   <textarea
                     rows={4}
@@ -273,6 +403,38 @@ export default function PlantDetailPage() {
               <div className="highlightCard">
                 <h3>Next task</h3>
                 <p>{plant?.nextTask}</p>
+              </div>
+              <div className="highlightCard">
+                <h3>Planted on</h3>
+                <p>
+                  {plant?.plantedOn
+                    ? formatDisplayDate(plant.plantedOn)
+                    : "Not set"}
+                </p>
+              </div>
+              <div className="highlightCard">
+                <h3>Last watered</h3>
+                <p>
+                  {plant?.wateredDates?.length
+                    ? formatDisplayDate(latestDate(plant.wateredDates))
+                    : "Not yet"}
+                </p>
+              </div>
+              <div className="highlightCard">
+                <h3>Last fertilized</h3>
+                <p>
+                  {plant?.fertilizedDates?.length
+                    ? formatDisplayDate(latestDate(plant.fertilizedDates))
+                    : "Not yet"}
+                </p>
+              </div>
+              <div className="highlightCard">
+                <h3>Last pruned</h3>
+                <p>
+                  {plant?.prunedDates?.length
+                    ? formatDisplayDate(latestDate(plant.prunedDates))
+                    : "Not yet"}
+                </p>
               </div>
             </div>
             {error && <div className="profileFooter">{error}</div>}

@@ -5,6 +5,13 @@ export type PlantRecord = {
   location: string;
   status: string;
   nextTask: string;
+  plantedOn: string;
+  wateredDates: string[];
+  fertilizedDates: string[];
+  prunedDates: string[];
+  waterIntervalDays: number | null;
+  fertilizeIntervalDays: number | null;
+  pruneIntervalDays: number | null;
   notes: string;
 };
 

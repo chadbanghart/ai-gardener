@@ -27,5 +27,4 @@ npm run db:push
 - plant properties
 - Calendar with notifications/reminders for events associated with plants currently in garden.
 - Wish Lists for plants you want to add to your garden when the season is right
-- My Plants whats currently in your garden
 - Plant details, when plant card is clicked, navigated to details about that plant, such as plants age, next watering

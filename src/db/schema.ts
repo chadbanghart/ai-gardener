@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const messageRole = pgEnum("message_role", [
   "system",
@@ -47,6 +54,13 @@ export const plants = pgTable("plants", {
   location: text("location"),
   status: text("status"),
   nextTask: text("next_task"),
+  plantedOn: timestamp("planted_on", { withTimezone: true }),
+  wateredDates: timestamp("watered_dates", { withTimezone: true }).array(),
+  fertilizedDates: timestamp("fertilized_dates", { withTimezone: true }).array(),
+  prunedDates: timestamp("pruned_dates", { withTimezone: true }).array(),
+  waterIntervalDays: integer("water_interval_days"),
+  fertilizeIntervalDays: integer("fertilize_interval_days"),
+  pruneIntervalDays: integer("prune_interval_days"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()

@@ -43,6 +43,20 @@
       "when": 1770144781992,
       "tag": "0005_early_raza",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770148416791,
+      "tag": "0006_previous_vargas",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770149266959,
+      "tag": "0007_gray_corsair",
+      "breakpoints": true
     }
   ]
 }
