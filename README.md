@@ -25,7 +25,6 @@ npm run db:push
 #### My Garden Page
 
 - Wish Lists for plants you want to add to your garden when the season is right
-- ability to see chat while on My Garden page and continue talking with AI while working on other pages.
-- have plants be organized by its location, ie a raised bed is its own div. each plant in that raised bed is placed in that div
 - add plant life cycle property, expected harvest date
 - add delete button on garden card to delete a plant or location
+- add properties for locations. ie garden bed has soil type, ph level, water frequency, sun amount. that way there can be context for ai chat and maybe they can suggest where to plant new plants or they have context instead of user needing to answer questions. these should be optional incase the user does not know.

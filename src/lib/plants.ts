@@ -1,5 +1,6 @@
 export type PlantRecord = {
   id: string;
+  chatId: string;
   name: string;
   variety: string;
   location: string;

@@ -57,6 +57,13 @@
       "when": 1770149266959,
       "tag": "0007_gray_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1770229355043,
+      "tag": "0008_mean_khan",
+      "breakpoints": true
     }
   ]
 }

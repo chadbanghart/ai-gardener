@@ -49,6 +49,7 @@ export const plants = pgTable("plants", {
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
+  chatId: uuid("chat_id").references(() => chats.id, { onDelete: "set null" }),
   name: text("name").notNull(),
   variety: text("variety"),
   location: text("location"),

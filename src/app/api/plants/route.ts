@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 
 import { db } from "@/db";
-import { plants } from "@/db/schema";
+import { chats, plants } from "@/db/schema";
 import { authOptions } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -14,6 +14,7 @@ type PlantPayload = {
   location?: string;
   status?: string;
   nextTask?: string;
+  chatId?: string | null;
   plantedOn?: string | null;
   wateredDates?: string[] | null;
   fertilizedDates?: string[] | null;
@@ -56,6 +57,30 @@ const parseIntervalDays = (value?: number | string | null) => {
   return parsed;
 };
 
+const resolveChatId = async (
+  chatId: string | null | undefined,
+  userId: string,
+) => {
+  if (chatId === undefined) {
+    return { value: undefined };
+  }
+  const trimmed = chatId?.trim();
+  if (!trimmed) {
+    return { value: null };
+  }
+  const [chat] = await db
+    .select({ id: chats.id })
+    .from(chats)
+    .where(and(eq(chats.id, trimmed), eq(chats.userId, userId)))
+    .limit(1);
+  if (!chat) {
+    return {
+      error: NextResponse.json({ error: "Chat not found." }, { status: 400 }),
+    };
+  }
+  return { value: chat.id };
+};
+
 const formatDateValue = (value: Date | string) => {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
@@ -69,6 +94,7 @@ const formatDateValue = (value: Date | string) => {
 
 const buildPlantResponse = (plant: {
   id: string;
+  chatId: string | null;
   name: string;
   variety: string | null;
   location: string | null;
@@ -84,6 +110,7 @@ const buildPlantResponse = (plant: {
   notes: string | null;
 }) => ({
   id: plant.id,
+  chatId: plant.chatId ?? "",
   name: plant.name,
   variety: plant.variety ?? "",
   location: plant.location ?? "",
@@ -117,6 +144,7 @@ export async function GET() {
   const plantList = await db
     .select({
       id: plants.id,
+      chatId: plants.chatId,
       name: plants.name,
       variety: plants.variety,
       location: plants.location,
@@ -155,8 +183,15 @@ export async function POST(request: Request) {
     );
   }
 
+  const { value: chatId, error: chatError } = await resolveChatId(
+    body.chatId,
+    userId,
+  );
+  if (chatError) return chatError;
+
   const payload = {
     userId,
+    chatId: chatId ?? null,
     name,
     variety: normalizeField(body.variety),
     location: normalizeField(body.location),
@@ -178,6 +213,7 @@ export async function POST(request: Request) {
     .values(payload)
     .returning({
       id: plants.id,
+      chatId: plants.chatId,
       name: plants.name,
       variety: plants.variety,
       location: plants.location,

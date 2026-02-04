@@ -6,8 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { createPlant, type PlantInput } from "@/lib/plants";
+import { fetchChatSummaries, type ChatSummary } from "@/lib/chats";
 
 const emptyPlant: PlantInput = {
+  chatId: "",
   name: "",
   variety: "",
   location: "",
@@ -27,6 +29,7 @@ export default function NewPlantPage() {
   const { status } = useSession();
   const router = useRouter();
   const [plant, setPlant] = useState<PlantInput>(emptyPlant);
+  const [chats, setChats] = useState<ChatSummary[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,6 +38,13 @@ export default function NewPlantPage() {
       router.replace("/");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetchChatSummaries()
+      .then(setChats)
+      .catch(() => setChats([]));
+  }, [status]);
 
   const isValid = useMemo(() => plant.name.trim().length > 0, [plant.name]);
 
@@ -161,6 +171,22 @@ export default function NewPlantPage() {
                   }
                   placeholder="Seeded, Thriving, Harvest ready"
                 />
+              </label>
+              <label>
+                Related chat (optional)
+                <select
+                  value={plant.chatId}
+                  onChange={(event) =>
+                    updateField("chatId", event.target.value)
+                  }
+                >
+                  <option value="">No chat linked</option>
+                  {chats.map((chat) => (
+                    <option key={chat.id} value={chat.id}>
+                      {chat.title}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
                 Planted on

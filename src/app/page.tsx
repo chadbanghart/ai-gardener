@@ -51,19 +51,19 @@ export default function Home() {
               )}
             </div>
           </div>
-            <div className="landingHighlights">
-              <div className="highlightCard">
-                <h3>Set your profile once</h3>
-                <p>
-                  Add your location, sunlight, and garden type to get more
-                  tailored advice in every chat.
-                </p>
-              </div>
-              <div className="highlightCard">
-                <h3>Guided by your garden</h3>
-                <p>
-                  Save sunlight, irrigation style, and notes once and Garden AI
-                  keeps your context ready for every chat.
+          <div className="landingHighlights">
+            <div className="highlightCard">
+              <h3>Set your profile once</h3>
+              <p>
+                Add your location, sunlight, and garden type to get more
+                tailored advice in every chat.
+              </p>
+            </div>
+            <div className="highlightCard">
+              <h3>Guided by your garden</h3>
+              <p>
+                Save sunlight, irrigation style, and notes once and Garden AI
+                keeps your context ready for every chat.
               </p>
             </div>
             <div className="highlightCard">

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import type { ChatSummary } from "@/lib/chats";
+import { fetchChatSummaries } from "@/lib/chats";
 import type { PlantRecord } from "@/lib/plants";
 import { deletePlant, fetchPlantById, updatePlant } from "@/lib/plants";
 
@@ -14,6 +16,17 @@ export default function PlantDetailPage() {
   const params = useParams();
   const [plant, setPlant] = useState<PlantRecord | null>(null);
   const [draft, setDraft] = useState<PlantRecord | null>(null);
+  const [chats, setChats] = useState<ChatSummary[]>([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<
+    Array<{ role: "user" | "assistant"; content: string; id?: string }>
+  >([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [isChatSending, setIsChatSending] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const chatListRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -186,6 +199,61 @@ export default function PlantDetailPage() {
     }
   }, [status, plantId, hasPlantId]);
 
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetchChatSummaries()
+      .then(setChats)
+      .catch(() => setChats([]));
+  }, [status]);
+
+  const linkedChatTitle = useMemo(() => {
+    if (!plant?.chatId) return "";
+    return chats.find((chat) => chat.id === plant.chatId)?.title ?? "";
+  }, [chats, plant?.chatId]);
+
+  useEffect(() => {
+    if (!isChatOpen || !plant?.chatId) return;
+    setIsChatLoading(true);
+    setChatError("");
+    fetch(`/api/chats/${plant.chatId}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          if (response.status === 401) return { messages: [] };
+          throw new Error("Failed to load chat.");
+        }
+        return (await response.json()) as {
+          messages?: Array<{
+            role: "user" | "assistant";
+            content: string;
+            id?: string;
+          }>;
+        };
+      })
+      .then((data) => {
+        const nextMessages = Array.isArray(data.messages)
+          ? data.messages
+          : [];
+        setChatMessages(nextMessages);
+      })
+      .catch(() => {
+        setChatMessages([]);
+        setChatError("Could not load chat. Try again.");
+      })
+      .finally(() => {
+        setIsChatLoading(false);
+        requestAnimationFrame(() => {
+          chatInputRef.current?.focus({ preventScroll: true });
+        });
+      });
+  }, [isChatOpen, plant?.chatId]);
+
+  useEffect(() => {
+    if (!isChatOpen) return;
+    const node = chatListRef.current;
+    if (!node) return;
+    node.scrollTop = node.scrollHeight;
+  }, [chatMessages, isChatOpen]);
+
   const handleEditToggle = () => {
     if (isEditing) {
       setDraft(plant);
@@ -255,6 +323,61 @@ export default function PlantDetailPage() {
     } catch {
       setError("Could not delete plant. Please try again.");
       setIsDeleting(false);
+    }
+  };
+
+  const handleChatToggle = () => {
+    if (!plant?.chatId) return;
+    setIsChatOpen((prev) => !prev);
+  };
+
+  const handleChatSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const trimmed = chatInput.trim();
+    if (!trimmed || isChatSending || !plant?.chatId) return;
+    setIsChatSending(true);
+    setChatError("");
+    setChatInput("");
+
+    const userMessage = { role: "user" as const, content: trimmed };
+    setChatMessages((prev) => [...prev, userMessage]);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed, chatId: plant.chatId }),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Unauthorized");
+        }
+        throw new Error("Request failed");
+      }
+      const data = (await response.json()) as {
+        reply?: string;
+      };
+      const reply =
+        typeof data.reply === "string"
+          ? data.reply
+          : "I ran into trouble crafting a reply. Try again with more detail.";
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: reply },
+      ]);
+    } catch {
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, I couldn't respond. Try again with details like plant type, sun hours, and last watering.",
+        },
+      ]);
+    } finally {
+      setIsChatSending(false);
     }
   };
 
@@ -391,6 +514,22 @@ export default function PlantDetailPage() {
                   />
                 </label>
                 <label>
+                  Related chat (optional)
+                  <select
+                    value={draft.chatId}
+                    onChange={(event) =>
+                      updateField("chatId", event.target.value)
+                    }
+                  >
+                    <option value="">No chat linked</option>
+                    {chats.map((chat) => (
+                      <option key={chat.id} value={chat.id}>
+                        {chat.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
                   Planted on
                   <input
                     type="date"
@@ -502,6 +641,22 @@ export default function PlantDetailPage() {
                 <h3>Next task</h3>
                 <p>{plant ? nextTaskForPlant(plant) : "No tasks scheduled"}</p>
               </div>
+              {plant?.chatId ? (
+                <button
+                  type="button"
+                  className="highlightCard highlightCardButton"
+                  onClick={() => setIsChatOpen(true)}
+                >
+                  <h3>Related chat</h3>
+                  <p>{linkedChatTitle || "Open chat"}</p>
+                  <span className="highlightHint">View conversation</span>
+                </button>
+              ) : (
+                <div className="highlightCard">
+                  <h3>Related chat</h3>
+                  <p>Not linked</p>
+                </div>
+              )}
               <div className="highlightCard">
                 <h3>Planted on</h3>
                 <p>
@@ -539,6 +694,81 @@ export default function PlantDetailPage() {
           </section>
         )}
       </div>
+      {plant?.chatId && (
+        <div className={`floatingChat ${isChatOpen ? "open" : ""}`}>
+          {!isChatOpen && (
+            <button
+              type="button"
+              className="floatingChatButton"
+              onClick={handleChatToggle}
+            >
+              Open chat
+            </button>
+          )}
+          {isChatOpen && (
+            <div className="floatingChatPanel" role="dialog" aria-live="polite">
+              <div className="floatingChatHeader">
+                <div>
+                  <p className="floatingChatEyebrow">Related chat</p>
+                  <h4>{linkedChatTitle || "Garden chat"}</h4>
+                </div>
+                <button
+                  type="button"
+                  className="floatingChatClose"
+                  onClick={handleChatToggle}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="floatingChatBody">
+                <div className="messageList" ref={chatListRef}>
+                  {isChatLoading ? (
+                    <div className="message assistant" aria-busy="true">
+                      <span className="messageRole">Garden AI</span>
+                      <div className="typingDots">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    </div>
+                  ) : chatMessages.length === 0 ? (
+                    <div className="message assistant">
+                      <span className="messageRole">Garden AI</span>
+                      <p>No messages yet. Say hello to start the chat.</p>
+                    </div>
+                  ) : (
+                    chatMessages.map((message, index) => (
+                      <div
+                        key={message.id ?? `${message.role}-${index}`}
+                        className={`message ${message.role}`}
+                      >
+                        <span className="messageRole">
+                          {message.role === "user" ? "You" : "Garden AI"}
+                        </span>
+                        <p>{message.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {chatError && <p className="helperText">{chatError}</p>}
+                <form className="composer" onSubmit={handleChatSubmit}>
+                  <input
+                    ref={chatInputRef}
+                    type="text"
+                    name="message"
+                    placeholder="Ask about this plant..."
+                    value={chatInput}
+                    onChange={(event) => setChatInput(event.target.value)}
+                  />
+                  <button type="submit" disabled={isChatSending}>
+                    {isChatSending ? "Sending..." : "Send"}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 
 import { db } from "@/db";
@@ -13,6 +13,10 @@ type ChatPayload = {
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST ?? "http://127.0.0.1:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3";
+const OLLAMA_MAX_HISTORY = Number.parseInt(
+  process.env.OLLAMA_MAX_HISTORY ?? "20",
+  10,
+);
 
 const baseSystemPrompt = [
   "You are Garden AI, a friendly, practical gardening assistant.",
@@ -147,11 +151,15 @@ export async function POST(request: Request) {
     });
   }
 
+  const historyLimit = Number.isFinite(OLLAMA_MAX_HISTORY)
+    ? Math.max(0, OLLAMA_MAX_HISTORY)
+    : 20;
   const history = await db
     .select({ role: messages.role, content: messages.content })
     .from(messages)
     .where(eq(messages.chatId, chatId))
-    .orderBy(messages.createdAt);
+    .orderBy(desc(messages.createdAt))
+    .limit(historyLimit);
 
   const [profile] = await db
     .select({
@@ -181,10 +189,13 @@ export async function POST(request: Request) {
 
   const ollamaMessages: OllamaMessage[] = [
     { role: "system", content: systemPrompt },
-    ...history.map((entry) => ({
-      role: entry.role,
-      content: entry.content,
-    })),
+    ...history
+      .slice()
+      .reverse()
+      .map((entry) => ({
+        role: entry.role,
+        content: entry.content,
+      })),
     { role: "user", content: message },
   ];
 
