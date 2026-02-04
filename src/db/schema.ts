@@ -94,3 +94,19 @@ export const messages = pgTable("messages", {
     .defaultNow()
     .notNull(),
 });
+
+export const wishListItems = pgTable("wish_list_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  season: text("season").notNull(),
+  name: text("name").notNull(),
+  timing: text("timing").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

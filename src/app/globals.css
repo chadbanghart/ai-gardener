@@ -1284,6 +1284,225 @@ button {
   max-width: 320px;
 }
 
+.wishGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+
+.wishCard {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(31, 42, 30, 0.12);
+  box-shadow: 0 16px 30px rgba(31, 42, 30, 0.1);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.wishSeason {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wishSeason h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.wishSeason span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(31, 42, 30, 0.55);
+}
+
+.wishList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.wishEmpty {
+  margin: 0;
+  color: rgba(31, 42, 30, 0.6);
+  font-size: 0.95rem;
+}
+
+.wishAddButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: rgba(47, 95, 63, 0.12);
+  color: #2f5f3f;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(47, 95, 63, 0.2);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border 0.2s ease;
+}
+
+.wishAddButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(47, 95, 63, 0.18);
+  border-color: rgba(47, 95, 63, 0.35);
+}
+
+.wishAddButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
+}
+
+.wishForm {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(31, 42, 30, 0.12);
+}
+
+.wishFormActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wishGhostButton {
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: rgba(31, 42, 30, 0.06);
+  color: rgba(31, 42, 30, 0.75);
+  font-weight: 600;
+  border: 1px solid rgba(31, 42, 30, 0.18);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border 0.2s ease;
+}
+
+.wishGhostButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(31, 42, 30, 0.12);
+  border-color: rgba(31, 42, 30, 0.3);
+}
+
+.wishForm label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(31, 42, 30, 0.6);
+}
+
+.wishForm input {
+  border-radius: 12px;
+  border: 1px solid rgba(31, 42, 30, 0.16);
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--font-body);
+}
+
+.wishItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.wishItemInfo {
+  display: grid;
+  gap: 4px;
+}
+
+.wishItemActions {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.wishItemEdit {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+}
+
+.wishItemEdit input {
+  border-radius: 10px;
+  border: 1px solid rgba(31, 42, 30, 0.16);
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+}
+
+.wishMiniButton,
+.wishMiniGhostButton,
+.wishMiniDangerButton {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 600;
+  border: 1px solid rgba(31, 42, 30, 0.16);
+  background: rgba(47, 95, 63, 0.12);
+  color: #2f5f3f;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border 0.2s ease;
+}
+
+.wishMiniGhostButton {
+  background: rgba(31, 42, 30, 0.06);
+  color: rgba(31, 42, 30, 0.75);
+}
+
+.wishMiniDangerButton {
+  background: rgba(212, 86, 86, 0.14);
+  color: #9f2a2a;
+  border-color: rgba(159, 42, 42, 0.25);
+}
+
+.wishMiniButton:hover,
+.wishMiniGhostButton:hover,
+.wishMiniDangerButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(31, 42, 30, 0.12);
+}
+
+.wishMiniButton:disabled,
+.wishMiniDangerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+}
+
+.wishTime {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(31, 42, 30, 0.55);
+}
+
 .plantActions {
   display: flex;
   align-items: center;
@@ -1532,6 +1751,10 @@ button {
   gap: 12px;
 }
 
+.floatingChat.isRaised {
+  bottom: 96px;
+}
+
 .floatingChatButton {
   border: none;
   border-radius: 999px;
@@ -1571,6 +1794,86 @@ button {
   padding: 16px 18px;
   border-bottom: 1px solid rgba(31, 42, 30, 0.08);
   background: linear-gradient(135deg, #f5efe6 0%, #e7f2e3 100%);
+}
+
+.floatingChatActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.floatingChatLink {
+  border: none;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(31, 42, 30, 0.7);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(31, 42, 30, 0.08);
+  cursor: pointer;
+}
+
+.floatingChatLink:hover {
+  color: rgba(31, 42, 30, 0.95);
+}
+
+.floatingChatPicker {
+  border-bottom: 1px solid rgba(31, 42, 30, 0.08);
+  background: #f9f7f1;
+}
+
+.floatingChatPickerState {
+  padding: 12px 18px;
+  font-size: 0.85rem;
+  color: rgba(31, 42, 30, 0.7);
+}
+
+.floatingChatPickerList {
+  list-style: none;
+  margin: 0;
+  padding: 6px 10px 10px;
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.floatingChatPickerItem {
+  width: 100%;
+  border: 1px solid rgba(31, 42, 30, 0.12);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(31, 42, 30, 0.8);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.floatingChatPickerItem small {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(31, 42, 30, 0.55);
+}
+
+.floatingChatPickerItem:hover {
+  border-color: rgba(31, 42, 30, 0.25);
+  box-shadow: 0 8px 18px rgba(31, 42, 30, 0.08);
+  transform: translateY(-1px);
+}
+
+.floatingChatPickerItem.isActive {
+  border-color: rgba(47, 95, 63, 0.5);
+  background: #f1f8ef;
 }
 
 .floatingChatHeader h4 {
@@ -1613,6 +1916,10 @@ button {
   .floatingChat {
     right: 16px;
     bottom: 16px;
+  }
+
+  .floatingChat.isRaised {
+    bottom: 72px;
   }
 
   .floatingChatPanel {

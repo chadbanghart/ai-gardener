@@ -24,7 +24,6 @@ npm run db:push
 
 #### My Garden Page
 
-- Wish Lists for plants you want to add to your garden when the season is right
 - add plant life cycle property, expected harvest date
 - add todays date as context for the AI when starting a chat
 - refactor settings. there should be user profile, then plant location settings where users can create new locations and input their settings
