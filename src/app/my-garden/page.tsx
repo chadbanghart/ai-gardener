@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { PlantRecord } from "@/lib/plants";
-import { fetchPlants } from "@/lib/plants";
+import { deletePlant, fetchPlants } from "@/lib/plants";
 
 type NextReminder = { date: string; plantName: string };
 
@@ -45,6 +45,11 @@ const formatShortDate = (value: Date) =>
 
 const abbreviateName = (value: string, maxLength = 9) =>
   value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+
+const reminderInitial = (value: string) => {
+  const trimmed = value.trim();
+  return trimmed ? trimmed[0].toUpperCase() : "?";
+};
 
 const latestDate = (dates: string[]) =>
   dates.length ? ([...dates].sort().at(-1) ?? "") : "";
@@ -143,6 +148,7 @@ export default function MyGardenPage() {
   const router = useRouter();
   const [plants, setPlants] = useState<PlantRecord[] | null>(null);
   const [error, setError] = useState("");
+  const [deletingPlantId, setDeletingPlantId] = useState<string | null>(null);
   const today = new Date();
   const [monthOffset, setMonthOffset] = useState(0);
   const [showWaterReminders, setShowWaterReminders] = useState(true);
@@ -441,6 +447,31 @@ export default function MyGardenPage() {
     }
   }, [status]);
 
+  const handleDeletePlant = async (plant: PlantRecord) => {
+    if (deletingPlantId) return;
+    const confirmed = window.confirm(
+      `Remove ${plant.name} from your garden? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingPlantId(plant.id);
+    try {
+      await deletePlant(plant.id);
+      setPlants((current) =>
+        current ? current.filter((item) => item.id !== plant.id) : current,
+      );
+      setError("");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Could not delete plant. Please try again.";
+      setError(message);
+    } finally {
+      setDeletingPlantId(null);
+    }
+  };
+
   if (status !== "authenticated") {
     return null;
   }
@@ -517,29 +548,39 @@ export default function MyGardenPage() {
                       const locationLabel =
                         plant.location.trim() || "Unassigned";
                       return (
-                        <Link
-                          className="plantCard"
-                          key={plant.id}
-                          href={`/my-garden/plants/${plant.id}`}
-                        >
-                          <div className="plantCardHeader">
-                            <div>
-                              <h3>{plant.name}</h3>
-                              <p className="plantVariety">{plant.variety}</p>
+                        <div className="plantCard" key={plant.id}>
+                          <button
+                            type="button"
+                            className="plantDeleteButton"
+                            onClick={() => handleDeletePlant(plant)}
+                            disabled={deletingPlantId === plant.id}
+                            aria-label={`Delete ${plant.name}`}
+                          >
+                            ×
+                          </button>
+                          <Link
+                            className="plantCardLink"
+                            href={`/my-garden/plants/${plant.id}`}
+                          >
+                            <div className="plantCardHeader">
+                              <div>
+                                <h3>{plant.name}</h3>
+                                <p className="plantVariety">{plant.variety}</p>
+                              </div>
+                              <span className="plantTag">{plant.status}</span>
                             </div>
-                            <span className="plantTag">{plant.status}</span>
-                          </div>
-                          <div className="plantMeta">
-                            <span>Location</span>
-                            <strong>{locationLabel}</strong>
-                          </div>
-                          <div className="plantMeta">
-                            <span>Next task</span>
-                            <strong>
-                              {nextTaskForPlant(plant, startOfToday)}
-                            </strong>
-                          </div>
-                        </Link>
+                            <div className="plantMeta">
+                              <span>Location</span>
+                              <strong>{locationLabel}</strong>
+                            </div>
+                            <div className="plantMeta">
+                              <span>Next task</span>
+                              <strong>
+                                {nextTaskForPlant(plant, startOfToday)}
+                              </strong>
+                            </div>
+                          </Link>
+                        </div>
                       );
                     })}
                   </div>
@@ -635,17 +676,31 @@ export default function MyGardenPage() {
                     new Date(calendarYear, calendarMonth, day),
                   );
                   const events = eventsByDate.get(dateKey) ?? [];
+                  const reminderCount = events.filter(
+                    (event) => event.isReminder,
+                  ).length;
+                  const compactReminders = reminderCount > 3;
                   return (
                     <div key={dateKey} className="calendarCell">
                       <div className="calendarDay">{day}</div>
-                      <div className="calendarEvents">
+                      <div
+                        className={`calendarEvents${
+                          compactReminders ? " isCompactReminders" : ""
+                        }`}
+                      >
                         {events.map((event, eventIndex) => (
                           <span
                             key={`${event.kind}-${eventIndex}`}
-                            className={`calendarEvent ${event.kind}`}
+                            className={`calendarEvent ${event.kind}${
+                              compactReminders && event.isReminder
+                                ? " isCompactReminder"
+                                : ""
+                            }`}
                             title={`${event.label} · ${event.plantName}`}
                           >
-                            {abbreviateName(event.plantName)}
+                            {compactReminders && event.isReminder
+                              ? reminderInitial(event.plantName)
+                              : abbreviateName(event.plantName)}
                           </span>
                         ))}
                       </div>

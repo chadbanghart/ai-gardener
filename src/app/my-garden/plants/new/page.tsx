@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { createPlant, type PlantInput } from "@/lib/plants";
+import { createPlant, fetchPlants, type PlantInput } from "@/lib/plants";
 import { fetchChatSummaries, type ChatSummary } from "@/lib/chats";
 
 const emptyPlant: PlantInput = {
@@ -30,6 +30,10 @@ export default function NewPlantPage() {
   const router = useRouter();
   const [plant, setPlant] = useState<PlantInput>(emptyPlant);
   const [chats, setChats] = useState<ChatSummary[]>([]);
+  const [locationOptions, setLocationOptions] = useState<string[]>([]);
+  const [locationMode, setLocationMode] = useState<"select" | "new">("select");
+  const [newLocation, setNewLocation] = useState("");
+  const [hasTouchedLocation, setHasTouchedLocation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,6 +50,36 @@ export default function NewPlantPage() {
       .catch(() => setChats([]));
   }, [status]);
 
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetchPlants()
+      .then((plants) => {
+        const unique = Array.from(
+          new Set(
+            plants
+              .map((entry) => entry.location.trim())
+              .filter((entry) => entry.length > 0),
+          ),
+        ).sort((a, b) => a.localeCompare(b));
+        setLocationOptions(unique);
+      })
+      .catch(() => setLocationOptions([]));
+  }, [status]);
+
+  const resolvedLocationMode = useMemo(() => {
+    if (hasTouchedLocation) return locationMode;
+    if (!locationOptions.length) return "new";
+    const current = plant.location.trim();
+    if (current && locationOptions.includes(current)) return "select";
+    if (current) return "new";
+    return "select";
+  }, [hasTouchedLocation, locationMode, locationOptions, plant.location]);
+
+  const resolvedNewLocation =
+    !hasTouchedLocation && resolvedLocationMode === "new"
+      ? plant.location
+      : newLocation;
+
   const isValid = useMemo(() => plant.name.trim().length > 0, [plant.name]);
 
   const updateField = <K extends keyof PlantInput>(
@@ -53,6 +87,23 @@ export default function NewPlantPage() {
     value: PlantInput[K],
   ) => {
     setPlant((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleLocationSelect = (value: string) => {
+    setHasTouchedLocation(true);
+    if (value === "__new__") {
+      setLocationMode("new");
+      updateField("location", resolvedNewLocation);
+      return;
+    }
+    setLocationMode("select");
+    updateField("location", value);
+  };
+
+  const handleNewLocationChange = (value: string) => {
+    setHasTouchedLocation(true);
+    setNewLocation(value);
+    updateField("location", value);
   };
 
   const updateDateListField = (
@@ -152,14 +203,36 @@ export default function NewPlantPage() {
               </label>
               <label>
                 Location
-                <input
-                  type="text"
-                  value={plant.location}
-                  onChange={(event) =>
-                    updateField("location", event.target.value)
+                <select
+                  value={
+                    resolvedLocationMode === "new"
+                      ? "__new__"
+                      : plant.location || ""
                   }
-                  placeholder="Raised bed 2, Balcony pots"
-                />
+                  onChange={(event) => handleLocationSelect(event.target.value)}
+                >
+                  <option value="">
+                    {locationOptions.length
+                      ? "Select a location"
+                      : "No saved locations"}
+                  </option>
+                  {locationOptions.map((location) => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
+                  <option value="__new__">Add a new location</option>
+                </select>
+                {resolvedLocationMode === "new" && (
+                  <input
+                    type="text"
+                    value={resolvedNewLocation}
+                    onChange={(event) =>
+                      handleNewLocationChange(event.target.value)
+                    }
+                    placeholder="Raised bed 2, Balcony pots"
+                  />
+                )}
               </label>
               <label>
                 Status

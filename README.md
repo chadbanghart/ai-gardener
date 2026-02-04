@@ -26,8 +26,6 @@ npm run db:push
 
 - Wish Lists for plants you want to add to your garden when the season is right
 - add plant life cycle property, expected harvest date
-- add delete button on garden card to delete a plant or location
 - add todays date as context for the AI when starting a chat
 - refactor settings. there should be user profile, then plant location settings where users can create new locations and input their settings
 - add properties for locations. ie garden bed has soil type, ph level, water frequency, sun amount. that way there can be context for ai chat and maybe they can suggest where to plant new plants or they have context instead of user needing to answer questions. these should be optional incase the user does not know.
-- in calendar, keep cell size the same and shrink reminders to circles with first letter if there are more than 3 reminders

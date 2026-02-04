@@ -156,7 +156,7 @@ button {
 }
 
 .shell {
-  width: min(980px, 100%);
+  width: min(1200px, 100%);
   margin: 0 auto;
   display: grid;
   gap: 28px;
@@ -1068,7 +1068,7 @@ button {
 
 .calendarGrid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(96px, 1fr));
   gap: 8px;
   background: rgba(31, 42, 30, 0.04);
   border: 1px solid rgba(31, 42, 30, 0.14);
@@ -1122,6 +1122,12 @@ button {
   min-width: 0;
 }
 
+.calendarEvents.isCompactReminders {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
 .calendarEvent {
   font-size: 0.6rem;
   padding: 2px 4px;
@@ -1137,6 +1143,16 @@ button {
   white-space: nowrap;
   background: rgba(47, 95, 63, 0.08);
   color: #2f5f3f;
+}
+
+.calendarEvent.isCompactReminder {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .calendarEvent.planted {
@@ -1343,17 +1359,59 @@ button {
 .plantCard {
   background: #fff;
   border-radius: 22px;
-  padding: 20px;
   border: 1px solid rgba(31, 42, 30, 0.1);
   box-shadow: 0 16px 30px rgba(31, 42, 30, 0.12);
   text-decoration: none;
   color: inherit;
-  display: grid;
-  gap: 14px;
+  padding: 20px;
+  position: relative;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border 0.2s ease;
+}
+
+.plantCardLink {
+  display: grid;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.plantDeleteButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border: 1px solid rgba(159, 42, 42, 0.2);
+  background: rgba(212, 86, 86, 0.12);
+  color: #9f2a2a;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.plantDeleteButton:hover {
+  transform: scale(1.05);
+  border-color: rgba(159, 42, 42, 0.4);
+  background: rgba(212, 86, 86, 0.2);
+  box-shadow: 0 10px 20px rgba(159, 42, 42, 0.2);
+}
+
+.plantDeleteButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
 }
 
 .plantCard:hover {
@@ -1366,6 +1424,7 @@ button {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  padding-right: 32px;
 }
 
 .plantCardHeader h3 {
