@@ -46,28 +46,20 @@ const getChatTitle = (message: string) => {
 
 const formatProfileContext = (profile?: {
   location: string | null;
-  sunlight: string[] | null;
   gardenEnvironment: string | null;
   hardinessZone: string | null;
-  gardenType: string[] | null;
-  irrigationStyle: string[] | null;
+  experienceLevel: string | null;
   notes: string | null;
 }) => {
   if (!profile) return null;
   const details = [
     profile.location ? `Location: ${profile.location}` : null,
-    profile.sunlight?.length
-      ? `Sunlight: ${profile.sunlight.join(", ")}`
-      : null,
     profile.gardenEnvironment
       ? `Environment: ${profile.gardenEnvironment}`
       : null,
     profile.hardinessZone ? `Hardiness zone: ${profile.hardinessZone}` : null,
-    profile.gardenType?.length
-      ? `Garden type: ${profile.gardenType.join(", ")}`
-      : null,
-    profile.irrigationStyle?.length
-      ? `Irrigation: ${profile.irrigationStyle.join(", ")}`
+    profile.experienceLevel
+      ? `Experience level: ${profile.experienceLevel}`
       : null,
     profile.notes ? `Notes: ${profile.notes}` : null,
   ].filter(Boolean);
@@ -78,25 +70,19 @@ const formatProfileContext = (profile?: {
 
 const hasProfilePreferences = (profile?: {
   location: string | null;
-  sunlight: string[] | null;
   gardenEnvironment: string | null;
   hardinessZone: string | null;
-  gardenType: string[] | null;
-  irrigationStyle: string[] | null;
+  experienceLevel: string | null;
 }) => {
   if (!profile) return false;
   const hasValue = (value?: string | null) =>
     typeof value === "string" && value.trim().length > 0;
-  const hasList = (value?: string[] | null) =>
-    Array.isArray(value) && value.length > 0;
 
   return (
     hasValue(profile.location) ||
-    hasList(profile.sunlight) ||
     hasValue(profile.gardenEnvironment) ||
     hasValue(profile.hardinessZone) ||
-    hasList(profile.gardenType) ||
-    hasList(profile.irrigationStyle)
+    hasValue(profile.experienceLevel)
   );
 };
 
@@ -175,11 +161,9 @@ export async function POST(request: Request) {
   const [profile] = await db
     .select({
       location: userProfiles.location,
-      sunlight: userProfiles.sunlight,
       gardenEnvironment: userProfiles.gardenEnvironment,
       hardinessZone: userProfiles.hardinessZone,
-      gardenType: userProfiles.gardenType,
-      irrigationStyle: userProfiles.irrigationStyle,
+      experienceLevel: userProfiles.experienceLevel,
       notes: userProfiles.notes,
     })
     .from(userProfiles)
@@ -242,7 +226,7 @@ export async function POST(request: Request) {
       data.message?.content?.trim() ||
       "I couldn't craft a reply. Try adding details like sunlight hours and last watering.";
     const nudgedReply = shouldNudgePreferences
-      ? `${reply}\n\nTip: Set your profile settings (location, sunlight, and garden type) to get more tailored advice.`
+      ? `${reply}\n\nTip: Set your profile settings (location and environment) to get more tailored advice.`
       : reply;
 
     await db.insert(messages).values({

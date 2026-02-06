@@ -26,8 +26,8 @@ export default function Home() {
             <h2>Plan, plant, and keep every conversation.</h2>
             <p>
               Garden AI keeps your growing notes in one place. Create a profile
-              with your climate and garden type, then get tailored advice for
-              soil, pests, watering, and seasonal timing.
+              with your climate, then get tailored advice for soil, pests,
+              watering, and seasonal timing.
             </p>
             <div className="landingActions">
               {isAuthed ? (
@@ -55,15 +55,15 @@ export default function Home() {
             <div className="highlightCard">
               <h3>Set your profile once</h3>
               <p>
-                Add your location, sunlight, and garden type to get more
-                tailored advice in every chat.
+                Add your location and environment to get more tailored advice
+                in every chat.
               </p>
             </div>
             <div className="highlightCard">
               <h3>Guided by your garden</h3>
               <p>
-                Save sunlight, irrigation style, and notes once and Garden AI
-                keeps your context ready for every chat.
+                Save your location and notes once and Garden AI keeps your
+                context ready for every chat.
               </p>
             </div>
             <div className="highlightCard">

@@ -20,11 +20,9 @@ type ChatSummary = {
 
 type ProfileSettings = {
   location: string;
-  sunlight: string[];
   gardenEnvironment: string;
   hardinessZone: string;
-  gardenType: string[];
-  irrigationStyle: string[];
+  experienceLevel: string;
   notes: string;
 };
 
@@ -37,13 +35,18 @@ const starterPrompts = [
 
 const emptyProfile: ProfileSettings = {
   location: "",
-  sunlight: [],
   gardenEnvironment: "",
   hardinessZone: "",
-  gardenType: [],
-  irrigationStyle: [],
+  experienceLevel: "",
   notes: "",
 };
+
+const experienceOptions = [
+  "Beginner",
+  "Intermediate",
+  "Advanced",
+  "Expert",
+];
 
 const welcomeMessage: Message = {
   role: "assistant",
@@ -334,21 +337,6 @@ export default function Home() {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleProfileOption = (
-    field: "sunlight" | "gardenType" | "irrigationStyle",
-    value: string,
-  ) => {
-    setProfile((prev) => {
-      const current = new Set(prev[field]);
-      if (current.has(value)) {
-        current.delete(value);
-      } else {
-        current.add(value);
-      }
-      return { ...prev, [field]: Array.from(current) };
-    });
-  };
-
   const handleProfileSave = async () => {
     if (isProfileSaving || !isAuthed) return;
     setIsProfileSaving(true);
@@ -376,25 +364,6 @@ export default function Home() {
 
   const showPrompts = isAuthed && !activeChatId && messages.length === 1;
 
-  const sunlightOptions = [
-    "Direct sunlight",
-    "Partial sun",
-    "Shade",
-    "Mixed",
-  ];
-  const gardenTypeOptions = [
-    "In-ground beds",
-    "Raised beds",
-    "Containers",
-    "Hydroponic",
-    "Mixed",
-  ];
-  const irrigationOptions = [
-    "Hand watering",
-    "Drip",
-    "Sprinkler",
-    "Self-watering",
-  ];
   const trimmedEditingTitle = editingTitle.trim();
 
   return (
@@ -632,8 +601,8 @@ export default function Home() {
               <h2>Plan, plant, and keep every conversation.</h2>
               <p>
                 Garden AI keeps your growing notes in one place. Create a
-                profile with your climate and garden type, then get tailored
-                advice for soil, pests, watering, and seasonal timing.
+                profile with your climate, then get tailored advice for soil,
+                pests, watering, and seasonal timing.
               </p>
               <div className="landingActions">
                 <Link className="authButton" href="/signup">
@@ -648,8 +617,8 @@ export default function Home() {
               <div className="highlightCard">
                 <h3>Guided by your garden</h3>
                 <p>
-                  Save sunlight, irrigation style, and notes once and Garden AI
-                  keeps your context ready for every chat.
+                  Save your location and garden notes once and Garden AI keeps
+                  your context ready for every chat.
                 </p>
               </div>
               <div className="highlightCard">
@@ -739,60 +708,26 @@ export default function Home() {
                       <option value="Both">Both</option>
                     </select>
                   </label>
-                  <div className="profileGroup">
-                    <span className="profileGroupLabel">Sunlight</span>
-                    <div className="checkboxGroup" role="group">
-                      {sunlightOptions.map((option) => (
-                        <label key={option} className="checkboxOption">
-                          <input
-                            type="checkbox"
-                            checked={profile.sunlight.includes(option)}
-                            onChange={() =>
-                              toggleProfileOption("sunlight", option)
-                            }
-                            disabled={isProfileLoading}
-                          />
-                          <span>{option}</span>
-                        </label>
+                  <label>
+                    Experience level
+                    <select
+                      value={profile.experienceLevel}
+                      onChange={(event) =>
+                        updateProfileField(
+                          "experienceLevel",
+                          event.target.value,
+                        )
+                      }
+                      disabled={isProfileLoading}
+                    >
+                      <option value="">Select</option>
+                      {experienceOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
                       ))}
-                    </div>
-                  </div>
-                  <div className="profileGroup">
-                    <span className="profileGroupLabel">Garden type</span>
-                    <div className="checkboxGroup" role="group">
-                      {gardenTypeOptions.map((option) => (
-                        <label key={option} className="checkboxOption">
-                          <input
-                            type="checkbox"
-                            checked={profile.gardenType.includes(option)}
-                            onChange={() =>
-                              toggleProfileOption("gardenType", option)
-                            }
-                            disabled={isProfileLoading}
-                          />
-                          <span>{option}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="profileGroup">
-                    <span className="profileGroupLabel">Irrigation</span>
-                    <div className="checkboxGroup" role="group">
-                      {irrigationOptions.map((option) => (
-                        <label key={option} className="checkboxOption">
-                          <input
-                            type="checkbox"
-                            checked={profile.irrigationStyle.includes(option)}
-                            onChange={() =>
-                              toggleProfileOption("irrigationStyle", option)
-                            }
-                            disabled={isProfileLoading}
-                          />
-                          <span>{option}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                    </select>
+                  </label>
                   <label className="profileNotes">
                     Other notes
                     <textarea

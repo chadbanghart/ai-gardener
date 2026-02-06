@@ -29,12 +29,10 @@ export const userProfiles = pgTable("user_profiles", {
     .notNull()
     .unique(),
   location: text("location"),
-  sunlight: text("sunlight").array(),
   gardenEnvironment: text("garden_environment"),
   tempRange: text("temp_range"),
   hardinessZone: text("hardiness_zone"),
-  gardenType: text("garden_type").array(),
-  irrigationStyle: text("irrigation_style").array(),
+  experienceLevel: text("experience_level"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
@@ -103,6 +101,25 @@ export const wishListItems = pgTable("wish_list_items", {
   season: text("season").notNull(),
   name: text("name").notNull(),
   timing: text("timing").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const gardenLocations = pgTable("garden_locations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  name: text("name").notNull(),
+  settingType: text("setting_type").notNull(),
+  soilType: text("soil_type"),
+  soilPh: text("soil_ph"),
+  sunAmount: text("sun_amount").array(),
+  notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

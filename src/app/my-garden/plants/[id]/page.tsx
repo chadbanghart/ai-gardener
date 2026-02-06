@@ -11,9 +11,13 @@ import type { PlantRecord } from "@/lib/plants";
 import {
   deletePlant,
   fetchPlantById,
-  fetchPlants,
   updatePlant,
 } from "@/lib/plants";
+
+type GardenLocation = {
+  id: string;
+  name: string;
+};
 
 export default function PlantDetailPage() {
   const { status } = useSession();
@@ -217,12 +221,21 @@ export default function PlantDetailPage() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
-    fetchPlants()
-      .then((plants) => {
+    fetch("/api/garden-locations")
+      .then(async (response) => {
+        if (!response.ok) {
+          if (response.status === 401) return { locations: [] };
+          throw new Error("Failed to load locations");
+        }
+        return (await response.json()) as {
+          locations?: GardenLocation[];
+        };
+      })
+      .then((data) => {
         const unique = Array.from(
           new Set(
-            plants
-              .map((entry) => entry.location.trim())
+            (data.locations ?? [])
+              .map((entry) => entry.name.trim())
               .filter((entry) => entry.length > 0),
           ),
         ).sort((a, b) => a.localeCompare(b));

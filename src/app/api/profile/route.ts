@@ -8,11 +8,9 @@ import { authOptions } from "@/lib/auth";
 
 type ProfilePayload = {
   location?: string;
-  sunlight?: string[];
   gardenEnvironment?: string;
   hardinessZone?: string;
-  gardenType?: string[];
-  irrigationStyle?: string[];
+  experienceLevel?: string;
   notes?: string;
 };
 
@@ -21,28 +19,17 @@ const normalizeField = (value?: string | null) => {
   return trimmed ? trimmed : null;
 };
 
-const normalizeList = (value?: string[] | null) => {
-  const filtered = Array.isArray(value)
-    ? value.map((entry) => entry.trim()).filter(Boolean)
-    : [];
-  return filtered.length ? filtered : null;
-};
-
 const buildProfileResponse = (profile?: {
   location: string | null;
-  sunlight: string[] | null;
   gardenEnvironment: string | null;
   hardinessZone: string | null;
-  gardenType: string[] | null;
-  irrigationStyle: string[] | null;
+  experienceLevel: string | null;
   notes: string | null;
 }) => ({
   location: profile?.location ?? "",
-  sunlight: profile?.sunlight ?? [],
   gardenEnvironment: profile?.gardenEnvironment ?? "",
   hardinessZone: profile?.hardinessZone ?? "",
-  gardenType: profile?.gardenType ?? [],
-  irrigationStyle: profile?.irrigationStyle ?? [],
+  experienceLevel: profile?.experienceLevel ?? "",
   notes: profile?.notes ?? "",
 });
 
@@ -62,11 +49,9 @@ export async function GET() {
   const [profile] = await db
     .select({
       location: userProfiles.location,
-      sunlight: userProfiles.sunlight,
       gardenEnvironment: userProfiles.gardenEnvironment,
       hardinessZone: userProfiles.hardinessZone,
-      gardenType: userProfiles.gardenType,
-      irrigationStyle: userProfiles.irrigationStyle,
+      experienceLevel: userProfiles.experienceLevel,
       notes: userProfiles.notes,
     })
     .from(userProfiles)
@@ -83,11 +68,9 @@ export async function PUT(request: Request) {
 
   const payload = {
     location: normalizeField(body.location),
-    sunlight: normalizeList(body.sunlight),
     gardenEnvironment: normalizeField(body.gardenEnvironment),
     hardinessZone: normalizeField(body.hardinessZone),
-    gardenType: normalizeList(body.gardenType),
-    irrigationStyle: normalizeList(body.irrigationStyle),
+    experienceLevel: normalizeField(body.experienceLevel),
     notes: normalizeField(body.notes),
   };
 

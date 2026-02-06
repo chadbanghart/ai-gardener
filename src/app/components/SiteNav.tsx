@@ -23,7 +23,7 @@ export default function SiteNav() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const isAuthed = status === "authenticated";
-  const isSettingsActive = pathname === "/settings";
+  const isSettingsActive = pathname === "/settings" || pathname.startsWith("/settings/");
   const visibleLinks = isAuthed
     ? navLinks
     : navLinks.filter((link) => link.href === "/");

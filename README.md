@@ -25,6 +25,4 @@ npm run db:push
 #### My Garden Page
 
 - add plant life cycle property, expected harvest date
-- add todays date as context for the AI when starting a chat
-- refactor settings. there should be user profile, then plant location settings where users can create new locations and input their settings
-- add properties for locations. ie garden bed has soil type, ph level, water frequency, sun amount. that way there can be context for ai chat and maybe they can suggest where to plant new plants or they have context instead of user needing to answer questions. these should be optional incase the user does not know.
+- check plant locations/garden settings to make sure there is no dead data

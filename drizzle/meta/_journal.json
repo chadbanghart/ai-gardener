@@ -71,6 +71,27 @@
       "when": 1770247636893,
       "tag": "0009_outgoing_flatman",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1770401583292,
+      "tag": "0010_jittery_swarm",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1770402416059,
+      "tag": "0011_good_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1770402998694,
+      "tag": "0012_silly_iron_patriot",
+      "breakpoints": true
     }
   ]
 }
