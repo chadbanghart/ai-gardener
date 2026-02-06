@@ -100,6 +100,17 @@ const hasProfilePreferences = (profile?: {
   );
 };
 
+const getTodayContext = () => {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return `Today is ${formatter.format(now)}.`;
+};
+
 export async function POST(request: Request) {
   const body = (await request.json()) as ChatPayload;
   const message = body.message?.trim();
@@ -179,6 +190,7 @@ export async function POST(request: Request) {
   const shouldNudgePreferences = !hasProfilePreferences(profile);
   const systemPrompt = [
     baseSystemPrompt,
+    getTodayContext(),
     profileContext,
     "Infer hardiness zone from the user's location when possible.",
     "Infer typical temperature ranges from the user's location when possible.",
